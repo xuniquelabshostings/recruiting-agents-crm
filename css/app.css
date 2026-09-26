@@ -1428,30 +1428,43 @@ textarea.notes:focus {
   .brand .sub { display: none; }
   .topbar-actions .btn#addAgentBtn { display: none; }
 
-  /* Sidebar Bottom Sheet */
+  /* Sidebar Bottom Sheet (Scrollable Filter Panel on Mobile) */
   aside.sidebar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: -100%;
-    top: auto;
-    width: 100%;
-    max-height: 80vh;
-    max-height: 80dvh;
-    border-top-left-radius: var(--radius-lg);
-    border-top-right-radius: var(--radius-lg);
-    border-right: none;
-    border-top: 1px solid var(--border);
-    z-index: 50;
-    transition: bottom .26s cubic-bezier(.35, 0, .25, 1);
-    box-shadow: 0 -8px 30px rgba(0,0,0,0.25);
-    padding: 20px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: -100% !important;
+    top: auto !important;
+    width: 100% !important;
+    max-height: 85vh !important;
+    max-height: 85dvh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    border-top-left-radius: var(--radius-lg) !important;
+    border-top-right-radius: var(--radius-lg) !important;
+    border-right: none !important;
+    border-top: 1px solid var(--border) !important;
+    z-index: 60 !important;
+    transition: bottom .26s cubic-bezier(.35, 0, .25, 1) !important;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.25) !important;
+    padding: 16px 18px calc(32px + env(safe-area-inset-bottom, 0px)) !important;
+    background: var(--surface) !important;
   }
   aside.sidebar.show {
-    bottom: 0;
+    bottom: 0 !important;
   }
   .sidebar-header-mobile {
-    display: flex;
+    display: flex !important;
+    position: sticky;
+    top: -16px;
+    background: var(--surface);
+    padding-top: 4px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
   }
 
   /* Table to Continuous Card List */
@@ -1555,25 +1568,39 @@ textarea.notes:focus {
 
   /* Drawer as Mobile Bottom Sheet */
   .drawer {
-    top: auto;
-    bottom: -100%;
-    right: 0;
-    left: 0;
-    width: 100%;
-    max-width: 100%;
-    height: 90vh;
-    height: 90dvh;
-    border-top-left-radius: var(--radius-lg);
-    border-top-right-radius: var(--radius-lg);
-    transition: bottom .26s cubic-bezier(.35, 0, .25, 1);
-    box-shadow: 0 -8px 36px rgba(0,0,0,0.3);
+    position: fixed !important;
+    top: auto !important;
+    bottom: -100% !important;
+    right: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 90vh !important;
+    height: 90dvh !important;
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
+    border-top-left-radius: var(--radius-lg) !important;
+    border-top-right-radius: var(--radius-lg) !important;
+    transition: bottom .26s cubic-bezier(.35, 0, .25, 1) !important;
+    box-shadow: 0 -8px 36px rgba(0,0,0,0.3) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    z-index: 60 !important;
+    background: var(--surface) !important;
   }
   .drawer.show {
-    bottom: 0;
-    right: 0;
+    bottom: 0 !important;
+    right: 0 !important;
   }
   .drawer-drag-handle {
-    display: block;
+    display: block !important;
+  }
+  .drawer-body {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
   }
 
   /* Modals Fullscreen on Small Screens */

@@ -3,7 +3,7 @@
  * Provides full offline support, asset caching, and lightning-fast loading.
  */
 
-const CACHE_NAME = 'ra-outreach-crm-v1.3';
+const CACHE_NAME = 'ra-outreach-crm-v1.4';
 
 const STATIC_ASSETS = [
   './',
