@@ -34,7 +34,7 @@
   --status-skip: #A13C38;
   --status-skip-bg: #F6DFDD;
   
-  --shadow-sm: 0 1px 2px rgba(42,36,28,0.06);
+  --shadow-sm: 0 1px 3px rgba(42,36,28,0.06);
   --shadow-md: 0 4px 12px rgba(42,36,28,0.08);
   --shadow-lg: 0 12px 32px -4px rgba(42,36,28,0.18);
   --radius-sm: 6px;
@@ -78,7 +78,7 @@
   --status-skip: #E69D9A;
   --status-skip-bg: #3D201E;
   
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
   --shadow-md: 0 6px 16px rgba(0,0,0,0.4);
   --shadow-lg: 0 16px 40px -6px rgba(0,0,0,0.6);
   
@@ -94,7 +94,6 @@
 
 html, body {
   height: 100%;
-  overscroll-behavior-y: none;
 }
 
 body {
@@ -106,7 +105,6 @@ body {
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   overflow-x: hidden;
-  touch-action: manipulation;
 }
 
 h1, h2, h3, .display-font {
@@ -138,6 +136,7 @@ button, input, select, textarea {
   flex-direction: column;
   height: 100vh;
   height: 100dvh;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -390,6 +389,7 @@ header.topbar {
 .body-row {
   display: flex;
   flex: 1;
+  min-height: 0;
   overflow: hidden;
   position: relative;
 }
@@ -545,6 +545,7 @@ main.content {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   overflow: hidden;
   background: var(--bg);
 }
@@ -553,7 +554,7 @@ main.content {
 .stats-strip {
   display: flex;
   gap: 10px;
-  padding: 12px 18px;
+  padding: 10px 16px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   overflow-x: auto;
@@ -563,11 +564,11 @@ main.content {
 }
 
 .stat-pill {
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: var(--radius);
   background: var(--surface-2);
   border: 1px solid var(--border);
-  min-width: 115px;
+  min-width: 105px;
   cursor: pointer;
   flex-shrink: 0;
   transition: all .15s ease;
@@ -579,20 +580,16 @@ main.content {
   box-shadow: var(--shadow-sm);
 }
 
-.stat-pill:active {
-  transform: scale(0.97);
-}
-
 .stat-pill .n {
   font-family: 'Fraunces', serif;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--ink);
   line-height: 1.1;
 }
 
 .stat-pill .l {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--ink-faint);
   margin-top: 2px;
   white-space: nowrap;
@@ -601,9 +598,10 @@ main.content {
 /* ---------- Table View & Toolbar ---------- */
 .table-scroll {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 16px 18px 40px;
+  padding: 14px 16px 30px;
   display: flex;
   flex-direction: column;
 }
@@ -612,7 +610,7 @@ main.content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   gap: 10px;
   flex-wrap: wrap;
 }
@@ -834,19 +832,26 @@ table.agents tbody tr.selected-row {
 .mobile-direct-actions {
   display: none;
   gap: 6px;
+  flex-wrap: wrap;
   margin-top: 6px;
 }
 .mobile-action-chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 5px 9px;
   background: var(--bg-soft);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 11.5px;
   color: var(--ink);
   font-weight: 500;
+  min-height: 28px;
+}
+.mobile-action-chip:hover, .mobile-action-chip:active {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  border-color: var(--accent);
 }
 
 /* ---------- Empty State ---------- */
@@ -874,7 +879,7 @@ table.agents tbody tr.selected-row {
   justify-content: center;
   gap: 6px;
   margin-top: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   font-size: 13px;
   color: var(--ink-soft);
   flex-wrap: wrap;
@@ -1397,6 +1402,7 @@ textarea.notes:focus {
   header.topbar {
     padding: 8px 12px;
     padding-top: calc(8px + env(safe-area-inset-top, 0px));
+    gap: 8px;
   }
   .brand h1 { font-size: 16px; }
   .brand .sub { display: none; }
@@ -1428,80 +1434,109 @@ textarea.notes:focus {
     display: flex;
   }
 
-  /* Table to Card/List Transformation on Mobile */
+  /* Table to Continuous Scrollable Card List on Mobile */
   .table-scroll {
-    padding: 10px 12px calc(16px + var(--mobile-nav-height));
+    padding: 8px 10px calc(20px + var(--mobile-nav-height));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  table.agents, table.agents tbody, table.agents tr, table.agents td {
+  .table-wrapper {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  table.agents,
+  table.agents tbody {
     display: block;
     width: 100% !important;
   }
   table.agents thead {
     display: none;
   }
-  .table-wrapper {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-  }
 
+  /* Each Agent Card Item in the List (Compact & Continuous) */
   table.agents tbody tr {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    margin-bottom: 10px;
-    padding: 12px 14px;
+    margin-bottom: 8px;
+    padding: 10px 12px;
     box-shadow: var(--shadow-sm);
+    box-sizing: border-box;
   }
 
   table.agents td {
-    padding: 4px 0 !important;
+    display: block !important;
+    width: 100% !important;
+    padding: 2px 0 !important;
     border-bottom: none !important;
   }
 
   table.agents td:first-child {
-    display: none; /* hide bulk checkbox on pure mobile list */
+    display: none !important; /* hide bulk checkbox on pure mobile list */
   }
 
   table.agents td:nth-child(2) .cell-agent .cell-name {
-    font-size: 15px;
-    margin-bottom: 2px;
+    font-size: 14.5px;
+    line-height: 1.3;
+    margin-bottom: 3px;
+    color: var(--ink);
+  }
+
+  table.agents td:nth-child(2) .cell-agent .cell-sub {
+    font-size: 11.5px;
   }
 
   table.agents td:nth-child(3) {
-    display: block !important;
-    margin-top: 2px;
+    margin-top: 3px;
   }
   table.agents td:nth-child(3) .cell-loc {
-    font-size: 12.5px;
+    font-size: 12px;
     display: inline;
+    font-weight: 600;
   }
   table.agents td:nth-child(3) .cell-dist {
+    font-size: 12px;
     display: inline;
     margin-left: 4px;
+    color: var(--ink-soft);
   }
 
   table.agents td:nth-child(4) {
-    display: block !important;
-    margin-top: 6px;
+    margin-top: 4px;
+  }
+  table.agents td:nth-child(4) .contact-line {
+    display: none; /* full contact details in drawer, direct buttons below */
   }
 
   .mobile-direct-actions {
-    display: flex;
+    display: flex !important;
+  }
+
+  table.agents td:nth-child(5) {
+    display: none !important; /* website handled by direct chip / drawer */
   }
 
   table.agents td:nth-child(6) {
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    margin-top: 8px;
-    padding-top: 8px !important;
+    margin-top: 6px;
+    padding-top: 6px !important;
     border-top: 1px solid var(--border) !important;
+  }
+  .mobile-status-label {
+    display: inline-block !important;
   }
 
   table.agents td:nth-child(7) {
-    display: none; /* Actions are accessible in Drawer */
+    display: none !important; /* Actions are accessible in Drawer */
   }
 
   /* Drawer as Mobile Bottom Sheet */
