@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Recruiting Agents CRM Stylesheet - Mobile Optimized & PWA Ready
+   Recruiting Agents CRM Stylesheet - Universal Mobile & Desktop
    ========================================================================== */
 
 :root {
@@ -93,7 +93,7 @@
 }
 
 html, body {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
@@ -128,31 +128,70 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
-   Layout Containers
+   Desktop Layout Containers
    ========================================================================== */
 
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
+@media (min-width: 769px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .body-row {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  aside.sidebar {
+    width: 280px;
+    padding: 18px 16px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+  }
+  main.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .table-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 18px 30px;
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 /* ---------- Top Navigation Bar ---------- */
 header.topbar {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 10px 18px;
+  gap: 12px;
+  padding: 10px 16px;
   padding-top: calc(10px + env(safe-area-inset-top, 0px));
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 25;
 }
 
 .brand {
@@ -382,29 +421,7 @@ header.topbar {
   margin: 4px 0;
 }
 
-/* ==========================================================================
-   Main Body Layout (Sidebar + Content)
-   ========================================================================== */
-
-.body-row {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  position: relative;
-}
-
-/* ---------- Sidebar Filters ---------- */
-aside.sidebar {
-  width: 280px;
-  padding: 18px 16px;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  flex-shrink: 0;
-}
-
+/* ---------- Sidebar Filter Components ---------- */
 .sidebar-header-mobile {
   display: none;
   align-items: center;
@@ -537,19 +554,6 @@ aside.sidebar {
   background: var(--accent-soft);
 }
 
-/* ==========================================================================
-   Content Area
-   ========================================================================== */
-
-main.content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-  background: var(--bg);
-}
-
 /* ---------- Stats Strip ---------- */
 .stats-strip {
   display: flex;
@@ -596,16 +600,6 @@ main.content {
 }
 
 /* ---------- Table View & Toolbar ---------- */
-.table-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 14px 16px 30px;
-  display: flex;
-  flex-direction: column;
-}
-
 .table-toolbar {
   display: flex;
   align-items: center;
@@ -664,7 +658,7 @@ main.content {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ---------- Agents Table ---------- */
+/* ---------- Agents Table (Desktop) ---------- */
 .table-wrapper {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -782,7 +776,7 @@ table.agents tbody tr.selected-row {
   color: var(--ink-faint);
 }
 
-/* Status select badge inside table */
+/* Status select badge */
 .status-select {
   padding: 6px 10px;
   border-radius: 6px;
@@ -828,7 +822,7 @@ table.agents tbody tr.selected-row {
   border-color: var(--status-skip);
 }
 
-/* Quick Touch Direct Actions on Mobile Row */
+/* Direct mobile chips */
 .mobile-direct-actions {
   display: none;
   gap: 6px;
@@ -1288,8 +1282,8 @@ textarea.notes:focus {
   padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--surface);
   border-top: 1px solid var(--border);
-  z-index: 30;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  z-index: 35;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
   justify-content: space-around;
   align-items: center;
 }
@@ -1326,8 +1320,8 @@ textarea.notes:focus {
   top: -12px;
 }
 .mobile-nav-item.fab-item .fab-circle {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--accent);
   color: #fff;
@@ -1378,24 +1372,47 @@ textarea.notes:focus {
 }
 
 /* ==========================================================================
-   Responsive & Mobile Adaptations (Mobile-First Polish)
+   Mobile View (Natural, Fluid Scrolling Everywhere)
    ========================================================================== */
 
-@media (max-width: 900px) {
-  table.agents th:nth-child(4),
-  table.agents td:nth-child(4) {
-    display: none;
-  }
-}
-
 @media (max-width: 768px) {
-  /* Layout Adjustments */
+  html, body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .app {
-    padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
+    display: block !important;
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 24px) !important;
+  }
+
+  .body-row {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  main.content {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .table-scroll {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 8px 10px 16px !important;
   }
 
   .mobile-bottom-nav {
-    display: flex;
+    display: flex !important;
   }
 
   /* Topbar Mobile */
@@ -1403,12 +1420,15 @@ textarea.notes:focus {
     padding: 8px 12px;
     padding-top: calc(8px + env(safe-area-inset-top, 0px));
     gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 25;
   }
   .brand h1 { font-size: 16px; }
   .brand .sub { display: none; }
-  .topbar-actions .btn#addAgentBtn { display: none; } /* handled by mobile FAB */
+  .topbar-actions .btn#addAgentBtn { display: none; }
 
-  /* Sidebar Bottom Sheet / Modal on Mobile */
+  /* Sidebar Bottom Sheet */
   aside.sidebar {
     position: fixed;
     left: 0;
@@ -1434,13 +1454,7 @@ textarea.notes:focus {
     display: flex;
   }
 
-  /* Table to Continuous Scrollable Card List on Mobile */
-  .table-scroll {
-    padding: 8px 10px calc(20px + var(--mobile-nav-height));
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
+  /* Table to Continuous Card List */
   .table-wrapper {
     background: transparent;
     border: none;
@@ -1450,14 +1464,14 @@ textarea.notes:focus {
 
   table.agents,
   table.agents tbody {
-    display: block;
+    display: block !important;
     width: 100% !important;
   }
   table.agents thead {
     display: none;
   }
 
-  /* Each Agent Card Item in the List (Compact & Continuous) */
+  /* Compact Touch Cards */
   table.agents tbody tr {
     display: flex !important;
     flex-direction: column !important;
@@ -1466,7 +1480,7 @@ textarea.notes:focus {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     margin-bottom: 8px;
-    padding: 10px 12px;
+    padding: 11px 13px;
     box-shadow: var(--shadow-sm);
     box-sizing: border-box;
   }
@@ -1479,13 +1493,13 @@ textarea.notes:focus {
   }
 
   table.agents td:first-child {
-    display: none !important; /* hide bulk checkbox on pure mobile list */
+    display: none !important;
   }
 
   table.agents td:nth-child(2) .cell-agent .cell-name {
     font-size: 14.5px;
     line-height: 1.3;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
     color: var(--ink);
   }
 
@@ -1494,7 +1508,7 @@ textarea.notes:focus {
   }
 
   table.agents td:nth-child(3) {
-    margin-top: 3px;
+    margin-top: 2px;
   }
   table.agents td:nth-child(3) .cell-loc {
     font-size: 12px;
@@ -1512,7 +1526,7 @@ textarea.notes:focus {
     margin-top: 4px;
   }
   table.agents td:nth-child(4) .contact-line {
-    display: none; /* full contact details in drawer, direct buttons below */
+    display: none;
   }
 
   .mobile-direct-actions {
@@ -1520,7 +1534,7 @@ textarea.notes:focus {
   }
 
   table.agents td:nth-child(5) {
-    display: none !important; /* website handled by direct chip / drawer */
+    display: none !important;
   }
 
   table.agents td:nth-child(6) {
@@ -1536,7 +1550,7 @@ textarea.notes:focus {
   }
 
   table.agents td:nth-child(7) {
-    display: none !important; /* Actions are accessible in Drawer */
+    display: none !important;
   }
 
   /* Drawer as Mobile Bottom Sheet */
@@ -1577,7 +1591,7 @@ textarea.notes:focus {
   .form-grid { grid-template-columns: 1fr; }
   .form-group.full-width { grid-column: span 1; }
 
-  /* Ensure input text fields don't trigger iOS auto-zoom */
+  /* Prevent iOS Safari auto-zoom on inputs */
   input[type="text"],
   input[type="email"],
   input[type="tel"],
