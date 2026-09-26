@@ -30,6 +30,8 @@
     hasWebsite: false,
     noWebsite: false,
     hasEmail: false,
+    hasNonCustomEmail: false,
+    hasCustomEmail: false,
     hasPhone: false,
     sortBy: 'sno',
     sortDir: 'asc',
@@ -48,6 +50,8 @@
     fWebsite: document.getElementById('fWebsite'),
     fNoWebsite: document.getElementById('fNoWebsite'),
     fEmail: document.getElementById('fEmail'),
+    fNoCustomEmail: document.getElementById('fNoCustomEmail'),
+    fCustomEmail: document.getElementById('fCustomEmail'),
     fPhone: document.getElementById('fPhone'),
     clearFilters: document.getElementById('clearFilters'),
     closeMobileFilters: document.getElementById('closeMobileFilters'),
@@ -156,6 +160,36 @@
   };
 
   /* ============ Helpers & Formatters ============ */
+  const GENERIC_EMAIL_DOMAINS = new Set([
+    'gmail.com', 'googlemail.com',
+    'yahoo.com', 'yahoo.co.in', 'yahoo.in', 'ymail.com', 'rocketmail.com',
+    'hotmail.com', 'hotmail.co.uk', 'hotmail.co.in',
+    'outlook.com', 'live.com', 'msn.com',
+    'rediffmail.com', 'rediff.com',
+    'icloud.com', 'me.com', 'mac.com',
+    'mail.com', 'email.com', 'aol.com',
+    'zoho.com', 'zoho.in', 'zohomail.com',
+    'protonmail.com', 'proton.me',
+    'gmx.com', 'gmx.net', 'inbox.com'
+  ]);
+
+  function getEmailDomain(email) {
+    if (!email || !email.includes('@')) return '';
+    return email.split('@').pop().trim().toLowerCase();
+  }
+
+  function hasCustomDomainEmail(email) {
+    if (!email || !email.includes('@')) return false;
+    const dom = getEmailDomain(email);
+    return dom.length > 0 && !GENERIC_EMAIL_DOMAINS.has(dom);
+  }
+
+  function hasNonCustomEmail(email) {
+    if (!email || !email.includes('@')) return false;
+    const dom = getEmailDomain(email);
+    return dom.length > 0 && GENERIC_EMAIL_DOMAINS.has(dom);
+  }
+
   function escapeHtml(s) {
     if (s === null || s === undefined) return '';
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -264,6 +298,8 @@
     if (state.hasWebsite && (!a.website || !a.website.trim())) return false;
     if (state.noWebsite && (a.website && a.website.trim())) return false;
     if (state.hasEmail && (!a.email || !a.email.trim())) return false;
+    if (state.hasNonCustomEmail && !hasNonCustomEmail(a.email)) return false;
+    if (state.hasCustomEmail && !hasCustomDomainEmail(a.email)) return false;
     if (state.hasPhone && (!a.phone || !a.phone.trim())) return false;
     if (state.status && a.status !== state.status) return false;
     
@@ -1222,6 +1258,26 @@
     render();
   });
 
+  elements.fNoCustomEmail?.addEventListener('change', (e) => {
+    state.hasNonCustomEmail = e.target.checked;
+    if (e.target.checked) {
+      state.hasCustomEmail = false;
+      if (elements.fCustomEmail) elements.fCustomEmail.checked = false;
+    }
+    state.page = 1;
+    render();
+  });
+
+  elements.fCustomEmail?.addEventListener('change', (e) => {
+    state.hasCustomEmail = e.target.checked;
+    if (e.target.checked) {
+      state.hasNonCustomEmail = false;
+      if (elements.fNoCustomEmail) elements.fNoCustomEmail.checked = false;
+    }
+    state.page = 1;
+    render();
+  });
+
   elements.fPhone?.addEventListener('change', (e) => {
     state.hasPhone = e.target.checked;
     state.page = 1;
@@ -1236,6 +1292,8 @@
     state.hasWebsite = false;
     state.noWebsite = false;
     state.hasEmail = false;
+    state.hasNonCustomEmail = false;
+    state.hasCustomEmail = false;
     state.hasPhone = false;
     state.page = 1;
 
@@ -1245,6 +1303,8 @@
     elements.fWebsite.checked = false;
     elements.fNoWebsite.checked = false;
     elements.fEmail.checked = false;
+    if (elements.fNoCustomEmail) elements.fNoCustomEmail.checked = false;
+    if (elements.fCustomEmail) elements.fCustomEmail.checked = false;
     elements.fPhone.checked = false;
 
     refreshDistrictOptions();
