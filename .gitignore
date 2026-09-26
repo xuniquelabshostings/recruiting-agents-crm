@@ -1,0 +1,13 @@
+# OS & Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.~lock*
+
+# Logs
+*.log
+
+# Node & Dependencies
+node_modules/
+dist/

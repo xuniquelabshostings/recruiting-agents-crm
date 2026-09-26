@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>RA Outreach — Recruiting Agents CRM</title>
+  <meta name="description" content="Fully functional Recruiting Agents CRM with client-side database, full CRUD operations, advanced filters, and GitHub Pages deployment support.">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23C15F3C%22/><text y=%2265%22 x=%2250%22 font-family=%22serif%22 font-size=%2250%22 font-weight=%22bold%22 fill=%22white%22 text-anchor=%22middle%22>RA</text></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Top Navigation Bar -->
+    <header class="topbar">
+      <button class="icon-btn" id="menuToggle" aria-label="Toggle filters" style="display:none">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+
+      <div class="brand" onclick="location.reload()">
+        <div class="mark">RA</div>
+        <div>
+          <h1>RA Outreach</h1>
+          <span class="sub">Recruiting Agents CRM</span>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="searchInput" type="text" placeholder="Search name, RAID, district, state, phone, email… (Press '/' to focus)" autocomplete="off">
+        <button class="search-clear" id="searchClear" aria-label="Clear search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="topbar-actions">
+        <!-- Add New Agent (Create) -->
+        <button class="btn btn-primary" id="addAgentBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          Add Agent
+        </button>
+
+        <!-- Export Dropdown -->
+        <div class="dropdown">
+          <button class="btn" id="exportDropdownBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Export
+          </button>
+          <div class="dropdown-menu" id="exportDropdownMenu">
+            <button class="dropdown-item" id="exportCsvBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+              Export to CSV
+            </button>
+            <button class="dropdown-item" id="exportJsonBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Export JSON Backup
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" id="exportSqliteBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              Download SQLite (.db)
+            </button>
+          </div>
+        </div>
+
+        <!-- DB & Backup Manager -->
+        <button class="icon-btn" id="dbManagerBtn" aria-label="Database settings" title="Database & Storage Settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle theme" title="Toggle light / dark mode">
+          <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- App Body: Sidebar + Main Content -->
+    <div class="body-row">
+      <!-- Sidebar Filters -->
+      <aside class="sidebar" id="sidebar">
+        <h2>Pipeline Status</h2>
+        <div class="filter-group" id="statusFilters"></div>
+
+        <h2>Location Filter</h2>
+        <div class="filter-group">
+          <select class="filter-select" id="stateFilter" aria-label="Filter by state">
+            <option value="">All states</option>
+          </select>
+          <select class="filter-select" id="districtFilter" aria-label="Filter by district">
+            <option value="">All districts</option>
+          </select>
+        </div>
+
+        <h2>Contact Criteria</h2>
+        <div class="filter-group">
+          <label class="chk-label"><input type="checkbox" id="fWebsite"> Has website</label>
+          <label class="chk-label"><input type="checkbox" id="fNoWebsite"> No website</label>
+          <label class="chk-label"><input type="checkbox" id="fEmail"> Has email</label>
+          <label class="chk-label"><input type="checkbox" id="fPhone"> Has phone</label>
+        </div>
+
+        <button class="clear-filters-btn" id="clearFilters">Reset all filters</button>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="content">
+        <!-- Top Stats Strip -->
+        <div class="stats-strip" id="statsStrip"></div>
+
+        <!-- Table View -->
+        <div class="table-scroll">
+          <!-- Bulk Action Bar -->
+          <div class="bulk-bar" id="bulkBar">
+            <div id="bulkCount">0 agents selected</div>
+            <div class="bulk-actions">
+              <select class="filter-select" id="bulkStatusSelect" style="width: auto; padding: 5px 10px; font-size: 12px; background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.2);">
+                <option value="">Set Status...</option>
+                <option value="new">⚪ New</option>
+                <option value="selected">🔵 Selected</option>
+                <option value="contacted">🟡 Contacted</option>
+                <option value="agreed">🟢 Agreed</option>
+                <option value="deal_done">🔴 Deal Done</option>
+                <option value="not_interested">⚫ Not Interested</option>
+              </select>
+              <button class="btn btn-sm" id="bulkExportBtn">Export Selected</button>
+              <button class="btn btn-sm btn-danger" id="bulkDeleteBtn">Delete Selected</button>
+              <button class="btn btn-sm" id="bulkDeselectBtn" style="background:transparent; color:#fff; border-color:rgba(255,255,255,0.2)">Deselect</button>
+            </div>
+          </div>
+
+          <!-- Table Controls / Toolbar -->
+          <div class="table-toolbar">
+            <div class="result-count" id="resultCount">Loading agents...</div>
+            
+            <div class="table-controls">
+              <div class="sort-select-wrap">
+                <span>Sort by:</span>
+                <select class="filter-select" id="sortBySelect" style="width:auto; padding:4px 8px; font-size:12px;">
+                  <option value="sno">S.No (Default)</option>
+                  <option value="ra_name">Agent Name</option>
+                  <option value="raid">RAID</option>
+                  <option value="state">State</option>
+                  <option value="status">Status</option>
+                  <option value="updated_at">Recently Updated</option>
+                </select>
+                <button class="icon-btn" id="sortDirBtn" style="width:28px; height:28px;" title="Toggle Sort Direction">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 8 4-4 4 4M7 4v16M21 16l-4 4-4-4M17 20V4"/></svg>
+                </button>
+              </div>
+
+              <div class="sort-select-wrap">
+                <span>Show:</span>
+                <select class="filter-select" id="pageSizeSelect" style="width:auto; padding:4px 8px; font-size:12px;">
+                  <option value="25">25</option>
+                  <option value="50" selected>50</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                  <option value="all">All</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agents Table -->
+          <div class="table-wrapper">
+            <table class="agents">
+              <thead>
+                <tr>
+                  <th style="width: 38px; text-align: center;">
+                    <input type="checkbox" id="selectAllHeader" title="Select all on current page">
+                  </th>
+                  <th style="width: 28%">Agent / Agency</th>
+                  <th style="width: 18%">Location</th>
+                  <th style="width: 20%">Contact Details</th>
+                  <th style="width: 14%">Website</th>
+                  <th style="width: 12%">Status</th>
+                  <th style="width: 8%; text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="emptyState" style="display:none">
+            <div class="big">No recruiting agents match your criteria</div>
+            <div style="margin-top: 4px;">Try clearing some filters or searching for different keywords.</div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Background Overlay for Drawer & Modals -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ==================== Agent Details Drawer ==================== -->
+  <aside class="drawer" id="drawer" aria-label="Agent details panel">
+    <div class="drawer-head">
+      <div class="drawer-head-actions">
+        <button class="action-btn" id="dEditBtn" title="Edit Agent Details">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <button class="action-btn delete-btn" id="dDeleteBtn" title="Delete Agent">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+        <button class="icon-btn" id="drawerClose" aria-label="Close drawer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="raid" id="dRaid"></div>
+      <h2 id="dName"></h2>
+      <div class="signatory" id="dSignatory"></div>
+    </div>
+
+    <div class="drawer-body">
+      <!-- Status Picker -->
+      <div class="drawer-section">
+        <div class="label">Pipeline Status</div>
+        <div class="status-grid" id="dStatusGrid"></div>
+      </div>
+
+      <!-- Quick Contact Actions -->
+      <div class="drawer-section">
+        <div class="label">Quick Outreach</div>
+        <div class="quick-contact-bar" id="dQuickActions"></div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="drawer-section">
+        <div class="label">Contact Information</div>
+        <div class="value" id="dContact"></div>
+      </div>
+
+      <!-- Location & Address -->
+      <div class="drawer-section">
+        <div class="label">Location & Address</div>
+        <div class="value" id="dLocation"></div>
+      </div>
+
+      <!-- Registration Certificate -->
+      <div class="drawer-section">
+        <div class="label">Registration Certificate (RC Number)</div>
+        <div class="value" id="dReg"></div>
+      </div>
+
+      <!-- Branch Address -->
+      <div class="drawer-section" id="dBranchWrap" style="display:none">
+        <div class="label">Branch Office(s)</div>
+        <div class="value" id="dBranch"></div>
+      </div>
+
+      <!-- Outreach Notes & Activity Log -->
+      <div class="drawer-section">
+        <div class="label">Outreach Notes & Activity</div>
+        <div class="quick-notes-templates" id="quickNotesChips">
+          <span class="template-pill">Called - No answer</span>
+          <span class="template-pill">Sent intro email</span>
+          <span class="template-pill">Follow up next week</span>
+          <span class="template-pill">Interested in website redesign</span>
+          <span class="template-pill">Invalid phone number</span>
+        </div>
+        <textarea class="notes" id="dNotes" placeholder="Log calls, conversation summary, follow-up dates, quotes, deal notes..."></textarea>
+        <div class="saved-note" id="savedNote">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          Changes saved automatically
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== Add / Edit Agent Modal (CRUD) ==================== -->
+  <div class="modal-backdrop" id="agentModalBackdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="agentModalTitle">Add New Recruiting Agent</h3>
+        <button class="icon-btn" id="closeAgentModal" aria-label="Close modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="agentForm">
+        <div class="modal-body">
+          <input type="hidden" id="modalAgentId">
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="modalRaid">RAID (Agent ID)</label>
+              <input type="text" id="modalRaid" placeholder="e.g. RA5889979">
+            </div>
+
+            <div class="form-group">
+              <label for="modalStatus">Pipeline Status</label>
+              <select id="modalStatus">
+                <option value="new">⚪ New</option>
+                <option value="selected">🔵 Selected</option>
+                <option value="contacted">🟡 Contacted</option>
+                <option value="agreed">🟢 Agreed</option>
+                <option value="deal_done">🔴 Deal Done</option>
+                <option value="not_interested">⚫ Not Interested</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="modalName">Agent / Agency Name *</label>
+              <input type="text" id="modalName" required placeholder="e.g. PNR INTERNATIONAL TRAVELS">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="modalSignatory">Authorized Signatory / Contact Person</label>
+              <input type="text" id="modalSignatory" placeholder="e.g. MARUTHI RAO PENAGALAPATI">
+            </div>
+
+            <div class="form-group">
+              <label for="modalState">State</label>
+              <select id="modalState"><option value="">Select state...</option></select>
+            </div>
+
+            <div class="form-group">
+              <label for="modalDistrict">District</label>
+              <input type="text" id="modalDistrict" placeholder="e.g. CHITTOOR">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="modalRcNumber">Registration Certificate (RC Number)</label>
+              <input type="text" id="modalRcNumber" placeholder="e.g. B-0410/AP/PER/1000/5/8419/2009">
+            </div>
+
+            <div class="form-group">
+              <label for="modalEmail">Email Address</label>
+              <input type="email" id="modalEmail" placeholder="e.g. agent@example.com">
+            </div>
+
+            <div class="form-group">
+              <label for="modalPhone">Phone / Mobile Number</label>
+              <input type="tel" id="modalPhone" placeholder="e.g. 91-9876543210">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="modalWebsite">Website URL</label>
+              <input type="url" id="modalWebsite" placeholder="e.g. https://www.agency.com">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="modalAddress">Full Address</label>
+              <textarea id="modalAddress" rows="2" placeholder="Full head office address..."></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="modalBranchAddress">Branch Office Address(es)</label>
+              <textarea id="modalBranchAddress" rows="2" placeholder="Any branch office locations..."></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="modalNotes">Initial Notes / Comments</label>
+              <textarea id="modalNotes" rows="2" placeholder="Outreach notes..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn" id="cancelAgentModal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveAgentModalBtn">Save Agent</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== Delete Confirmation Modal ==================== -->
+  <div class="modal-backdrop" id="deleteModalBackdrop">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3>Delete Agent</h3>
+        <button class="icon-btn" id="closeDeleteModal" aria-label="Close modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px; line-height:1.5;">Are you sure you want to permanently delete <strong id="deleteTargetName">this agent</strong>?</p>
+        <p style="font-size:12.5px; color:var(--ink-soft); margin-top:8px;">This will remove the record from your browser database.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="cancelDeleteBtn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Agent</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== Database & Backup Manager Modal ==================== -->
+  <div class="modal-backdrop" id="dbModalBackdrop">
+    <div class="modal-dialog" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3>Database & Data Management</h3>
+        <button class="icon-btn" id="closeDbModal" aria-label="Close modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:20px;">
+        <div style="background:var(--bg-soft); padding:14px; border-radius:var(--radius); font-size:13px;">
+          <div><strong>Storage Engine:</strong> IndexedDB (Browser Persistent)</div>
+          <div style="margin-top:4px;"><strong>Active Records:</strong> <span id="dbRecordCount">1,988 records</span></div>
+          <div style="margin-top:4px;"><strong>Database Status:</strong> <span id="dbLastUpdated">Operational & Synced</span></div>
+          <div style="margin-top:4px; font-size:11.5px; color:var(--ink-soft);">All updates, additions, notes, and deletions are saved directly in your browser's persistent database.</div>
+        </div>
+
+        <div>
+          <h4 style="font-size:13px; font-weight:600; margin-bottom:8px;">Import Data (CSV or JSON Backup)</h4>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <select class="filter-select" id="importModeSelect" style="width: 140px;">
+              <option value="merge">Merge records</option>
+              <option value="replace">Replace all</option>
+            </select>
+            <input type="file" id="importFileInput" accept=".json,.csv" style="display:none;">
+            <button type="button" class="btn" id="btnTriggerImport">Choose File & Import</button>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border); padding-top:16px;">
+          <h4 style="font-size:13px; font-weight:600; margin-bottom:6px; color:var(--status-skip);">Reset Database</h4>
+          <p style="font-size:12.5px; color:var(--ink-soft); margin-bottom:10px;">Re-seed the database back to the original 1,988 recruiting agents dataset.</p>
+          <button type="button" class="btn btn-danger" id="btnResetDb">Reset to Original 1,988 Agents</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" onclick="document.getElementById('dbModalBackdrop').classList.remove('show')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- sql.js WebAssembly for genuine SQLite .db file compilation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js"></script>
+
+  <!-- Application Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
