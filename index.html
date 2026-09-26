@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <title>RA Outreach — Recruiting Agents CRM</title>
-  <meta name="description" content="Fully functional Recruiting Agents CRM with client-side database, full CRUD operations, offline PWA support, advanced filters, and GitHub Pages deployment.">
+  <meta name="description" content="Mobile-optimized Recruiting Agents CRM with client-side database, full CRUD operations, offline PWA support, and GitHub Pages deployment.">
 
   <!-- PWA & Mobile Capabilities -->
   <meta name="theme-color" content="#C15F3C">
@@ -32,7 +32,7 @@
     <!-- Top Navigation Bar -->
     <header class="topbar">
       <button class="icon-btn" id="menuToggle" aria-label="Toggle filters" style="display:none">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
 
       <div class="brand" onclick="location.reload()">
@@ -45,20 +45,20 @@
 
       <div class="search-wrap">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input id="searchInput" type="text" placeholder="Search name, RAID, district, state, phone, email… (Press '/' to focus)" autocomplete="off">
+        <input id="searchInput" type="text" placeholder="Search name, RAID, state, phone, email… ('/' to focus)" autocomplete="off">
         <button class="search-clear" id="searchClear" aria-label="Clear search">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
       </div>
 
       <div class="topbar-actions">
-        <!-- PWA Install App Button (Shown when install prompt is available) -->
+        <!-- PWA Install App Button -->
         <button class="btn" id="pwaInstallBtn" style="display:none; background:var(--accent-soft); color:var(--accent-soft-ink); border-color:var(--accent);">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
           Install App
         </button>
 
-        <!-- Add New Agent (Create) -->
+        <!-- Add New Agent (Desktop) -->
         <button class="btn btn-primary" id="addAgentBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
           Add Agent
@@ -101,8 +101,15 @@
 
     <!-- App Body: Sidebar + Main Content -->
     <div class="body-row">
-      <!-- Sidebar Filters -->
+      <!-- Sidebar Filters (Side Panel on Desktop, Bottom Sheet on Mobile) -->
       <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header-mobile">
+          <h3 style="font-size:16px;">Filter Agents</h3>
+          <button class="icon-btn" id="closeMobileFilters" aria-label="Close filters">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+
         <h2>Pipeline Status</h2>
         <div class="filter-group" id="statusFilters"></div>
 
@@ -132,7 +139,7 @@
         <!-- Top Stats Strip -->
         <div class="stats-strip" id="statsStrip"></div>
 
-        <!-- Table View -->
+        <!-- Table / Card View Scroll Area -->
         <div class="table-scroll">
           <!-- Bulk Action Bar -->
           <div class="bulk-bar" id="bulkBar">
@@ -159,14 +166,14 @@
             
             <div class="table-controls">
               <div class="sort-select-wrap">
-                <span>Sort by:</span>
+                <span>Sort:</span>
                 <select class="filter-select" id="sortBySelect" style="width:auto; padding:4px 8px; font-size:12px;">
-                  <option value="sno">S.No (Default)</option>
-                  <option value="ra_name">Agent Name</option>
+                  <option value="sno">S.No</option>
+                  <option value="ra_name">Name</option>
                   <option value="raid">RAID</option>
                   <option value="state">State</option>
                   <option value="status">Status</option>
-                  <option value="updated_at">Recently Updated</option>
+                  <option value="updated_at">Updated</option>
                 </select>
                 <button class="icon-btn" id="sortDirBtn" style="width:28px; height:28px;" title="Toggle Sort Direction">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 8 4-4 4 4M7 4v16M21 16l-4 4-4-4M17 20V4"/></svg>
@@ -186,7 +193,7 @@
             </div>
           </div>
 
-          <!-- Agents Table -->
+          <!-- Agents Table (Desktop Table, Mobile Card List) -->
           <div class="table-wrapper">
             <table class="agents">
               <thead>
@@ -217,13 +224,44 @@
         </div>
       </main>
     </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav">
+      <button class="mobile-nav-item active" id="mobNavAgents">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Agents</span>
+      </button>
+
+      <button class="mobile-nav-item" id="mobNavFilter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        <span>Filters</span>
+      </button>
+
+      <button class="mobile-nav-item fab-item" id="mobNavAdd">
+        <div class="fab-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <span>Add</span>
+      </button>
+
+      <button class="mobile-nav-item" id="mobNavExport">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        <span>Export</span>
+      </button>
+
+      <button class="mobile-nav-item" id="mobNavSettings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <span>DB</span>
+      </button>
+    </nav>
   </div>
 
   <!-- Background Overlay for Drawer & Modals -->
   <div class="overlay" id="overlay"></div>
 
-  <!-- ==================== Agent Details Drawer ==================== -->
+  <!-- ==================== Agent Details Drawer / Bottom Sheet ==================== -->
   <aside class="drawer" id="drawer" aria-label="Agent details panel">
+    <div class="drawer-drag-handle"></div>
     <div class="drawer-head">
       <div class="drawer-head-actions">
         <button class="action-btn" id="dEditBtn" title="Edit Agent Details">
@@ -286,13 +324,13 @@
           <span class="template-pill">Called - No answer</span>
           <span class="template-pill">Sent intro email</span>
           <span class="template-pill">Follow up next week</span>
-          <span class="template-pill">Interested in website redesign</span>
-          <span class="template-pill">Invalid phone number</span>
+          <span class="template-pill">Interested in website</span>
+          <span class="template-pill">Invalid phone</span>
         </div>
         <textarea class="notes" id="dNotes" placeholder="Log calls, conversation summary, follow-up dates, quotes, deal notes..."></textarea>
         <div class="saved-note" id="savedNote">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-          Changes saved automatically
+          Saved
         </div>
       </div>
     </div>
@@ -357,17 +395,17 @@
 
             <div class="form-group">
               <label for="modalEmail">Email Address</label>
-              <input type="email" id="modalEmail" placeholder="e.g. agent@example.com">
+              <input type="email" id="modalEmail" inputmode="email" placeholder="e.g. agent@example.com">
             </div>
 
             <div class="form-group">
               <label for="modalPhone">Phone / Mobile Number</label>
-              <input type="tel" id="modalPhone" placeholder="e.g. 91-9876543210">
+              <input type="tel" id="modalPhone" inputmode="tel" placeholder="e.g. 91-9876543210">
             </div>
 
             <div class="form-group full-width">
               <label for="modalWebsite">Website URL</label>
-              <input type="url" id="modalWebsite" placeholder="e.g. https://www.agency.com">
+              <input type="url" id="modalWebsite" inputmode="url" placeholder="e.g. https://www.agency.com">
             </div>
 
             <div class="form-group full-width">

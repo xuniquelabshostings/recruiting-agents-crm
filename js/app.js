@@ -1,6 +1,6 @@
 /**
- * Recruiting Agents CRM - Main Application Logic
- * Full CRUD, Responsive UI, IndexedDB persistence, Filters, Export/Import
+ * Recruiting Agents CRM - Main Application Controller
+ * Full CRUD, Highly Mobile-Optimized, PWA & Offline Support, IndexedDB Persistence
  */
 
 (function () {
@@ -50,6 +50,7 @@
     fEmail: document.getElementById('fEmail'),
     fPhone: document.getElementById('fPhone'),
     clearFilters: document.getElementById('clearFilters'),
+    closeMobileFilters: document.getElementById('closeMobileFilters'),
     
     // Stats & counts
     statsStrip: document.getElementById('statsStrip'),
@@ -85,6 +86,13 @@
     menuToggle: document.getElementById('menuToggle'),
     sidebar: document.getElementById('sidebar'),
     
+    // Mobile Bottom Navigation
+    mobNavAgents: document.getElementById('mobNavAgents'),
+    mobNavFilter: document.getElementById('mobNavFilter'),
+    mobNavAdd: document.getElementById('mobNavAdd'),
+    mobNavExport: document.getElementById('mobNavExport'),
+    mobNavSettings: document.getElementById('mobNavSettings'),
+
     // Drawer
     overlay: document.getElementById('overlay'),
     drawer: document.getElementById('drawer'),
@@ -175,7 +183,7 @@
   }
 
   /* ============ Toast Notifications ============ */
-  function showToast(message, type = 'info', duration = 3000) {
+  function showToast(message, type = 'info', duration = 2800) {
     if (!elements.toastContainer) return;
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
@@ -313,6 +321,9 @@
         state.status = state.status === key ? null : key;
         state.page = 1;
         render();
+        // Close mobile filters sheet if open
+        elements.sidebar?.classList.remove('show');
+        elements.overlay?.classList.remove('show');
       });
     });
   }
@@ -396,12 +407,12 @@
     elements.emptyState.style.display = sorted.length === 0 ? 'block' : 'none';
     elements.tableBody.innerHTML = pageItems.map(rowHtml).join('');
 
-    // Table Row Events
+    // Table / Card Row Events
     elements.tableBody.querySelectorAll('tr[data-id]').forEach(tr => {
       const id = Number(tr.dataset.id);
       
       tr.addEventListener('click', (e) => {
-        if (e.target.closest('a') || e.target.closest('select') || e.target.closest('input[type="checkbox"]') || e.target.closest('.action-btn')) {
+        if (e.target.closest('a') || e.target.closest('select') || e.target.closest('input[type="checkbox"]') || e.target.closest('.action-btn') || e.target.closest('.mobile-action-chip')) {
           return;
         }
         openDrawer(id);
@@ -421,7 +432,7 @@
         await window.agentDB.patch(id, { status: newStatus });
         const agent = allAgents.find(a => a.id === id);
         if (agent) agent.status = newStatus;
-        showToast(`Status updated to "${STATUS_MAP[newStatus]?.label || newStatus}"`, 'success', 2000);
+        showToast(`Status updated to "${STATUS_MAP[newStatus]?.label || newStatus}"`, 'success', 1800);
         render();
       });
 
@@ -455,11 +466,24 @@
     const statusOpts = STATUSES.map(o => `<option value="${o.key}" ${o.key === a.status ? 'selected' : ''}>${o.label}</option>`).join('');
 
     const contactBits = [];
-    if (a.email) contactBits.push(`<div class="contact-line"><a href="mailto:${escapeHtml(a.email)}">${escapeHtml(a.email)}</a></div>`);
+    if (a.email) contactBits.push(`<div class="contact-line"><a href="mailto:${escapeHtml(a.email)}" onclick="event.stopPropagation()">${escapeHtml(a.email)}</a></div>`);
     else contactBits.push(`<div class="contact-line muted">No email</div>`);
     
-    if (a.phone) contactBits.push(`<div class="contact-line"><a href="${telHref(a.phone)}">${escapeHtml(a.phone)}</a></div>`);
+    if (a.phone) contactBits.push(`<div class="contact-line"><a href="${telHref(a.phone)}" onclick="event.stopPropagation()">${escapeHtml(a.phone)}</a></div>`);
     else contactBits.push(`<div class="contact-line muted">No phone</div>`);
+
+    // Direct Mobile Touch Chips
+    const mobileActions = [];
+    if (a.phone) {
+      mobileActions.push(`<a class="mobile-action-chip" href="${telHref(a.phone)}" onclick="event.stopPropagation()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Call</a>`);
+      mobileActions.push(`<a class="mobile-action-chip" href="${whatsappHref(a.phone)}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> WhatsApp</a>`);
+    }
+    if (a.email) {
+      mobileActions.push(`<a class="mobile-action-chip" href="mailto:${escapeHtml(a.email)}" onclick="event.stopPropagation()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Email</a>`);
+    }
+    if (a.website) {
+      mobileActions.push(`<a class="mobile-action-chip" href="${normalizedHref(a.website)}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Site</a>`);
+    }
 
     return `
       <tr data-id="${a.id}" class="${isSelected ? 'selected-row' : ''}">
@@ -479,11 +503,15 @@
           <div class="cell-loc">${escapeHtml(a.state || '—')}</div>
           <div class="cell-dist">${escapeHtml(a.district || '')}</div>
         </td>
-        <td style="width: 20%">${contactBits.join('')}</td>
+        <td style="width: 20%">
+          ${contactBits.join('')}
+          <div class="mobile-direct-actions">${mobileActions.join('')}</div>
+        </td>
         <td style="width: 14%">
-          ${a.website ? `<a class="web-link" href="${normalizedHref(a.website)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(a.website)}">${escapeHtml(formatWebsite(a.website))}</a>` : `<span class="web-none">No website</span>`}
+          ${a.website ? `<a class="web-link" href="${normalizedHref(a.website)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(a.website)}" onclick="event.stopPropagation()">${escapeHtml(formatWebsite(a.website))}</a>` : `<span class="web-none">No website</span>`}
         </td>
         <td style="width: 12%">
+          <span style="font-size:12px; color:var(--ink-soft); display:none;" class="mobile-status-label">Status:</span>
           <select class="status-select" style="background-color:${s.bg};color:${s.color}">${statusOpts}</select>
         </td>
         <td style="width: 8%">
@@ -507,8 +535,8 @@
 
     // Page numbers with ellipsis
     const cur = state.page;
-    const maxBtns = 5;
-    let startPage = Math.max(1, cur - 2);
+    const maxBtns = window.innerWidth <= 600 ? 3 : 5;
+    let startPage = Math.max(1, cur - 1);
     let endPage = Math.min(totalPages, startPage + maxBtns - 1);
     if (endPage - startPage < maxBtns - 1) {
       startPage = Math.max(1, endPage - maxBtns + 1);
@@ -714,6 +742,7 @@
   elements.overlay?.addEventListener('click', () => {
     closeDrawer();
     closeAllModals();
+    elements.sidebar?.classList.remove('show');
   });
 
   // Notes Auto-save in Drawer
@@ -774,6 +803,8 @@
     elements.agentModalBackdrop.classList.remove('show');
     elements.deleteModalBackdrop.classList.remove('show');
     elements.dbModalBackdrop.classList.remove('show');
+    elements.sidebar?.classList.remove('show');
+    elements.overlay?.classList.remove('show');
   }
 
   elements.closeAgentModal?.addEventListener('click', closeAllModals);
@@ -948,7 +979,6 @@
       if (!initSqlJsFn && window.SQL) initSqlJsFn = () => Promise.resolve(window.SQL);
 
       if (!initSqlJsFn) {
-        // Load dynamically if needed
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js');
         initSqlJsFn = window.initSqlJs;
       }
@@ -1017,7 +1047,6 @@
       showToast('Exported SQLite database (recruiting_agents.db) successfully!', 'success');
     } catch (err) {
       console.error('SQLite export error:', err);
-      // Fallback to CSV if sql.js fails
       exportCSVData(allAgents, 'recruiting_agents.csv');
       showToast('SQLite export unavailable; exported full CSV instead', 'info');
     }
@@ -1074,7 +1103,7 @@
     };
 
     reader.readAsText(file);
-    e.target.value = ''; // reset file input
+    e.target.value = '';
   });
 
   function parseCsv(text) {
@@ -1111,7 +1140,6 @@
       headers.forEach((h, idx) => {
         obj[h] = vals[idx] !== undefined ? vals[idx] : '';
       });
-      // normalize key names
       const agent = {
         raid: obj.raid || obj.ra_id || '',
         ra_name: obj.ra_name || obj.agent_name || obj.name || '',
@@ -1224,6 +1252,11 @@
     showToast('Filters cleared', 'info', 1200);
   });
 
+  elements.closeMobileFilters?.addEventListener('click', () => {
+    elements.sidebar?.classList.remove('show');
+    elements.overlay?.classList.remove('show');
+  });
+
   // Sort & Page Controls
   elements.sortBySelect?.addEventListener('change', (e) => {
     state.sortBy = e.target.value;
@@ -1268,7 +1301,40 @@
   elements.exportJsonBtn?.addEventListener('click', exportJSONData);
   elements.exportSqliteBtn?.addEventListener('click', exportSqliteDatabase);
 
-  /* ============ Mobile Sidebar Drawer ============ */
+  /* ============ Mobile Bottom Navigation Wiring ============ */
+  elements.mobNavAgents?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelector('.table-scroll')?.scrollTo({ top: 0, behavior: 'smooth' });
+    setActiveNav('mobNavAgents');
+  });
+
+  elements.mobNavFilter?.addEventListener('click', () => {
+    elements.sidebar?.classList.toggle('show');
+    elements.overlay?.classList.toggle('show', elements.sidebar?.classList.contains('show'));
+    setActiveNav('mobNavFilter');
+  });
+
+  elements.mobNavAdd?.addEventListener('click', () => {
+    openAddModal();
+  });
+
+  elements.mobNavExport?.addEventListener('click', () => {
+    const filtered = allAgents.filter(matches);
+    exportCSVData(filtered, `ra-outreach-export-${new Date().toISOString().slice(0, 10)}.csv`);
+    setActiveNav('mobNavExport');
+  });
+
+  elements.mobNavSettings?.addEventListener('click', () => {
+    openDbModal();
+    setActiveNav('mobNavSettings');
+  });
+
+  function setActiveNav(navId) {
+    document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+    document.getElementById(navId)?.classList.add('active');
+  }
+
+  /* ============ Mobile Sidebar Toggle ============ */
   function checkMobile() {
     if (window.innerWidth <= 768) {
       if (elements.menuToggle) elements.menuToggle.style.display = 'flex';
@@ -1282,6 +1348,7 @@
 
   elements.menuToggle?.addEventListener('click', () => {
     elements.sidebar?.classList.toggle('show');
+    elements.overlay?.classList.toggle('show', elements.sidebar?.classList.contains('show'));
   });
 
   /* ============ Keyboard Shortcuts ============ */
@@ -1302,6 +1369,21 @@
     }
   });
 
+  /* ============ URL Query Handling (PWA Shortcuts) ============ */
+  function handleUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('action') === 'add') {
+      setTimeout(openAddModal, 300);
+    }
+    if (params.get('status')) {
+      const st = params.get('status');
+      if (STATUS_MAP[st]) {
+        state.status = st;
+        render();
+      }
+    }
+  }
+
   /* ============ Application Initialization ============ */
   async function initApp() {
     initTheme();
@@ -1310,17 +1392,17 @@
       // Initialize IndexedDB
       await window.agentDB.init();
       await reloadAgentsFromDB();
-      console.log('Recruiting Agents CRM initialized successfully with full database persistence.');
+      handleUrlParams();
+      console.log('Recruiting Agents CRM initialized with full database persistence and mobile optimization.');
     } catch (err) {
       console.error('Failed to initialize database:', err);
-      // Fallback to window.INITIAL_AGENTS in memory if IndexedDB fails
       if (window.INITIAL_AGENTS) {
         allAgents = window.INITIAL_AGENTS.map(a => ({ ...a }));
         refreshStateOptions();
         refreshDistrictOptions();
         render();
       }
-      showToast('IndexedDB unavailable; operating in memory mode.', 'error');
+      showToast('Operating in memory mode.', 'error');
     }
   }
 
