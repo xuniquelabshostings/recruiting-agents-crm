@@ -1,0 +1,55 @@
+{
+  "name": "RA Outreach — Recruiting Agents CRM",
+  "short_name": "RA Outreach",
+  "description": "Comprehensive Recruiting Agents CRM with offline persistent database and full CRUD operations.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#F7F3EA",
+  "theme_color": "#C15F3C",
+  "orientation": "any",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add New Agent",
+      "short_name": "Add Agent",
+      "description": "Create and log a new recruiting agent",
+      "url": "./index.html?action=add",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Agreed Deals",
+      "short_name": "Agreed",
+      "description": "View recruiting agents in Agreed / Won stage",
+      "url": "./index.html?status=agreed",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

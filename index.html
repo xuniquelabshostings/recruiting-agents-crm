@@ -4,10 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>RA Outreach — Recruiting Agents CRM</title>
-  <meta name="description" content="Fully functional Recruiting Agents CRM with client-side database, full CRUD operations, advanced filters, and GitHub Pages deployment support.">
+  <meta name="description" content="Fully functional Recruiting Agents CRM with client-side database, full CRUD operations, offline PWA support, advanced filters, and GitHub Pages deployment.">
+
+  <!-- PWA & Mobile Capabilities -->
+  <meta name="theme-color" content="#C15F3C">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="RA Outreach">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23C15F3C%22/><text y=%2265%22 x=%2250%22 font-family=%22serif%22 font-size=%2250%22 font-weight=%22bold%22 fill=%22white%22 text-anchor=%22middle%22>RA</text></svg>">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23C15F3C%22/><text y=%2265%22 x=%2250%22 font-family=%22serif%22 font-size=%2250%22 font-weight=%22bold%22 fill=%22white%22 text-anchor=%22middle%22>RA</text></svg>">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,6 +52,12 @@
       </div>
 
       <div class="topbar-actions">
+        <!-- PWA Install App Button (Shown when install prompt is available) -->
+        <button class="btn" id="pwaInstallBtn" style="display:none; background:var(--accent-soft); color:var(--accent-soft-ink); border-color:var(--accent);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Install App
+        </button>
+
         <!-- Add New Agent (Create) -->
         <button class="btn btn-primary" id="addAgentBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -412,8 +428,8 @@
         <div style="background:var(--bg-soft); padding:14px; border-radius:var(--radius); font-size:13px;">
           <div><strong>Storage Engine:</strong> IndexedDB (Browser Persistent)</div>
           <div style="margin-top:4px;"><strong>Active Records:</strong> <span id="dbRecordCount">1,988 records</span></div>
-          <div style="margin-top:4px;"><strong>Database Status:</strong> <span id="dbLastUpdated">Operational & Synced</span></div>
-          <div style="margin-top:4px; font-size:11.5px; color:var(--ink-soft);">All updates, additions, notes, and deletions are saved directly in your browser's persistent database.</div>
+          <div style="margin-top:4px;"><strong>PWA Offline Status:</strong> <span style="color:var(--status-agreed); font-weight:600;">Enabled & Cached</span></div>
+          <div style="margin-top:4px; font-size:11.5px; color:var(--ink-soft);">All updates, additions, notes, and deletions are saved directly in your browser's persistent database and work completely offline.</div>
         </div>
 
         <div>
@@ -450,5 +466,41 @@
   <script src="js/data.js"></script>
   <script src="js/db.js"></script>
   <script src="js/app.js"></script>
+
+  <!-- Service Worker Registration & PWA Installation Logic -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(reg => console.log('[PWA] Service Worker registered with scope:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker registration error:', err));
+      });
+    }
+
+    // Handle Native PWA Install Prompt
+    let deferredPrompt = null;
+    const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (pwaInstallBtn) {
+        pwaInstallBtn.style.display = 'inline-flex';
+        pwaInstallBtn.addEventListener('click', async () => {
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log('[PWA] User choice outcome:', outcome);
+          deferredPrompt = null;
+          pwaInstallBtn.style.display = 'none';
+        });
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      console.log('[PWA] RA Outreach CRM installed successfully!');
+      if (pwaInstallBtn) pwaInstallBtn.style.display = 'none';
+    });
+  </script>
 </body>
 </html>
